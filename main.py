@@ -52,12 +52,16 @@ def start_recognition():
 
 if __name__ == "__main__":
     # Start GUI in main thread
-    gui_thread = threading.Thread(target=run_gui)
-    gui_thread.start()
+    import sys
+    if "render" not in sys.argv:
+        # Local mode with GUI
+        gui_thread = threading.Thread(target=run_gui)
+        gui_thread.start()
 
-    # Start FastAPI server
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+        uvicorn.run(app, host="0.0.0.0", port=8000)
 
-    # Cleanup
-    exit_event.set()
-    gui_thread.join()
+        exit_event.set()
+        gui_thread.join()
+    else:
+        # Headless server mode (e.g. on Render)
+        uvicorn.run(app, host="0.0.0.0", port=8000)
